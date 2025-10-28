@@ -1,0 +1,182 @@
+import sys
+import requests
+import os
+import base64
+import hashlib
+from bs4 import BeautifulSoup
+
+class sendmessage:
+    def __init__(self, key="51c8368e-9d1d-4b4d-8928-a96dc6ee18c3"):
+        """
+        初始化企业微信机器人
+        :param key: 机器人 key
+        """
+        self.webhook = f"https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key={key}"
+        self.upload_url = "https://qyapi.weixin.qq.com/cgi-bin/webhook/upload_media"
+
+        # 设置 stdout 编码（支持中文输出）
+        if hasattr(sys.stdout, "reconfigure"):
+            sys.stdout.reconfigure(encoding='utf-8')
+
+    def send_message_to_wechat(self, content):
+        """发送文本消息"""
+        headers = {'Content-Type': 'application/json; charset=utf-8'}
+        data = {
+            "msgtype": "text",
+            "text": {
+                "content": content
+            }
+        }
+        try:
+            response = requests.post(self.webhook, headers=headers, json=data, timeout=10)
+            if response.status_code == 200 and response.json().get("errcode") == 0:
+                print("✅ 文本消息发送成功")
+                return True
+            else:
+                print("❌ 文本消息发送失败:", response.text)
+                return False
+        except Exception as e:
+            print(f"❌ 发送消息异常: {e}")
+            return False
+
+    def upload_image_and_send(self, image_path):
+        """上传并发送图片（base64 方式）"""
+        if not os.path.exists(image_path):
+            print(f"❌ 图片文件不存在: {image_path}")
+            return False
+
+        try:
+            with open(image_path, 'rb') as f:
+                image_data = f.read()
+
+            image_base64 = base64.b64encode(image_data).decode('utf-8')
+            image_md5 = hashlib.md5(image_data).hexdigest()
+
+            data = {
+                "msgtype": "image",
+                "image": {
+                    "base64": image_base64,
+                    "md5": image_md5
+                }
+            }
+            headers = {'Content-Type': 'application/json'}
+            response = requests.post(self.webhook, headers=headers, json=data, timeout=10)
+
+            if response.status_code == 200 and response.json().get("errcode") == 0:
+                print("✅ 图片发送成功")
+                return True
+            else:
+                print("❌ 图片发送失败:", response.text)
+                return False
+        except Exception as e:
+            print(f"❌ 发送图片异常: {e}")
+            return False
+
+    def upload_file_and_send(self, filepath):
+        """上传并发送文件"""
+        if not os.path.exists(filepath):
+            print(f"❌ 文件不存在: {filepath}")
+            return False
+
+        try:
+            with open(filepath, 'rb') as f:
+                files = {'file': f}
+                params = {'key': self.key, 'type': 'file'}
+                response = requests.post(self.upload_url, params=params, files=files, timeout=30)
+
+            if response.status_code != 200:
+                print(f"❌ 文件上传失败（HTTP {response.status_code}）: {response.text}")
+                return False
+
+            result = response.json()
+            if result.get("errcode") != 0:
+                print(f"❌ 上传失败: {result}")
+                return False
+
+            media_id = result.get("media_id")
+            print(f"✅ 文件上传成功，media_id: {media_id}")
+
+            # 发送文件消息
+            data = {
+                "msgtype": "file",
+                "file": {"media_id": media_id}
+            }
+            headers = {'Content-Type': 'application/json; charset=utf-8'}
+            response2 = requests.post(self.webhook, headers=headers, json=data, timeout=10)
+
+            if response2.status_code == 200 and response2.json().get("errcode") == 0:
+                print("✅ 文件消息发送成功")
+                return True
+            else:
+                print("❌ 文件消息发送失败:", response2.text)
+                return False
+        except Exception as e:
+            print(f"❌ 上传文件异常: {e}")
+            return False
+
+    def extract_last_fail_screenshot_from_html(self, html_path):
+        """
+        从 Airtest log.html 中提取最后一个失败步骤的截图
+        """
+        if not os.path.exists(html_path):
+            print(f"❌ HTML 报告文件不存在: {html_path}")
+            return None
+
+        try:
+            with open(html_path, 'r', encoding='utf-8') as f:
+                soup = BeautifulSoup(f, 'html.parser')
+
+            failed_screenshots = []
+            for step in soup.find_all('div', class_='step-right'):
+                status = step.find('span', class_='step-status')
+                if status and 'fail' in status.get('class', []):
+                    img = step.find('img', class_='screen')
+                    if img and img.get('src'):
+                        src = img['src']
+                        abs_path = src if os.path.isabs(src) else os.path.join(os.path.dirname(html_path), src)
+                        if os.path.exists(abs_path):
+                            failed_screenshots.append(abs_path)
+
+            if failed_screenshots:
+                last_screenshot = failed_screenshots[-1]
+                print(f"✅ 找到最后一个失败截图: {last_screenshot}")
+                return last_screenshot
+            else:
+                print("⚠️ 未找到失败截图")
+                return None
+        except Exception as e:
+            print(f"❌ 解析 HTML 失败: {e}")
+            return None
+    def send_markdown_message(self, markdown_text):
+        headers = {'Content-Type': 'application/json; charset=utf-8'}
+        data = {
+            "msgtype": "markdown",
+            "markdown": {
+                "content":markdown_text
+            }
+        }
+        try:
+            response = requests.post(self.webhook, headers=headers, json=data, timeout=10)
+            if response.status_code == 200 and response.json().get("errcode") == 0:
+                print("✅ 文本消息发送成功")
+                return True
+            else:
+                print("❌ 文本消息发送失败:", response.text)
+                return False
+        except Exception as e:
+            print(f"❌ 发送消息异常: {e}")
+            return False
+
+# ====================== 主流程（必须放在类外部）======================
+if __name__ == "__main__":
+    sender = sendmessage(key="51c8368e-9d1d-4b4d-8928-a96dc6ee18c3")
+    duration = "222.s"
+    result = "success"
+    device = "模拟器"
+    file = "某个函数"
+    report_html = "\\192.168.33.36\share\airtest_report\om_online.log\test.html"
+    spend_time = duration
+    # ✅ 修改为你的 Airtest 报告路径（通常是 log.html）
+    sender.send_markdown_message(
+        f"**执行结果**:{result}\n**设备名称**:{device}\n**脚本文件**:{file}\n**耗时**:{spend_time}\n**报告地址**:[{report_html}]({report_html})"
+    )
