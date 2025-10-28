@@ -2,10 +2,11 @@
 __author__ = "王瀚鋆"
 __title__ = "千年之旅UI自动化"
 __desc__ = """
-正式服服新手引导
+正式服新手引导
 """
 
 from datetime import datetime
+from pathlib import Path
 
 from airtest.core.api import *
 from airtest.core.android.recorder import *
@@ -19,7 +20,7 @@ auto_setup(__file__, logdir=True, devices=["android://127.0.0.1:5037/127.0.0.1:1
 sender = sendmessage(key="22a6a656-0fea-4ff4-b697-2fdd08729d49")
 timestamp = datetime.now().strftime("%Y%m%d%H%M")
 root = timestamp
-export_dir = r"C:\Users\admin\Desktop\Millennium Journey_Automation\ch_new_hand.air\ch_new_hand.log"
+export_dir = r"H:\Millennium Journey_Automation\ch_new_hand.air\ch_new_hand.log"
 html_file = os.path.join(export_dir, "test.html")
 
 
@@ -53,17 +54,20 @@ def connect_emulator(host="127.0.0.1", port="16512"):
 
 
 def erro_pass():
-    keyevent("187")
-    sleep(2)
-    if exists(Template(r"tpl1756989714552.png", record_pos=(0.189, 0.247), resolution=(1600, 900))):
-        touch(Template(r"tpl1756989722679.png", record_pos=(0.188, 0.245), resolution=(1600, 900)))
-    else:
-        keyevent("3")
+    cmd = [
+        "am", "force-stop", "com.yingche.qnzl"
+    ]
+    dev.shell(cmd)
 
+def open_app():
+    cmd = [
+        "am", "start", "-S",
+        "-n", "com.yingche.qnzl/com.inchigame.elf.sdk.SplashActivity"
+    ]
+    dev.shell(cmd)
 
 def main_process():
     try:
-        touch(wait(Template(r"tpl1754463073266.png", record_pos=(-0.223, 0.079), resolution=(1600, 900))))
         sleep(20)
         if exists(Template(r"tpl1757055392792.png", record_pos=(0.001, 0.144), resolution=(1600, 900))):
             touch((1382, 734))
@@ -94,7 +98,7 @@ def main_process():
         keyevent("112")
         text(f"{root}")
         touch(Template(r"tpl1756434533904.png", record_pos=(0.066, 0.062), resolution=(2480, 1148)))
-        touch(wait(Template(r"tpl1756693258397.png", record_pos=(0.456, -0.252), resolution=(1600, 900))))
+        touch(wait(Template(r"tpl1756693258397.png", record_pos=(0.456, -0.252), resolution=(1600, 900)),timeout=60))
         touch(wait(Template(r"tpl1756693301248.png", record_pos=(0.332, 0.118), resolution=(1600, 900))))
         auto_tap_continue(max_taps=1000, interval=1)
         touch(Template(r"tpl1754535820833.png", record_pos=(-0.431, 0.096), resolution=(1600, 900)))
@@ -225,7 +229,9 @@ def main_process():
         sleep(5)
         touch(wait(Template(r"tpl1756693853676.png", record_pos=(0.452, -0.252), resolution=(1600, 900))))
         touch(Template(r"tpl1754468570439.png", record_pos=(0.058, 0.051), resolution=(1600, 900)))
-        touch(wait(Template(r"tpl1754468598477.png", record_pos=(0.011, -0.174), resolution=(1600, 900)), timeout=20))
+        wait(Template(r"tpl1754468598477.png", record_pos=(0.011, -0.174), resolution=(1600, 900)), timeout=20)
+        sleep(2)
+        touch((1084,241))
         touch(wait(Template(r"tpl1756693902112.png", record_pos=(0.456, -0.246), resolution=(1600, 900))))
         touch(wait(Template(r"tpl1756693905472.png", record_pos=(0.295, 0.111), resolution=(1600, 900))))
         sleep(5)
@@ -280,13 +286,13 @@ def main_process():
         touch(Template(r"tpl1754468722374.png", record_pos=(-0.434, 0.094), resolution=(1600, 900)))
         sleep(1)
         touch(Template(r"tpl1754531305402.png", record_pos=(-0.429, 0.074), resolution=(1600, 900)))
-        sleep(3)
+        sleep(5)
         if exists(Template(r"tpl1756694994721.png", record_pos=(-0.312, 0.205), resolution=(1600, 900))):
             touch(Template(r"tpl1754468732570.png", record_pos=(0.419, -0.186), resolution=(1600, 900)))
             touch(Template(r"tpl1754531349491.png", record_pos=(0.037, 0.018), resolution=(1600, 900)))
             touch(Template(r"tpl1754531372070.png", record_pos=(0.323, 0.229), resolution=(1600, 900)))
         else:
-            raise Exception("The expected template does not exist.")
+            raise Exception("提示克制关系引导未出现")
         touch(Template(r"tpl1754468748416.png", record_pos=(0.343, 0.235), resolution=(1600, 900)))
         sleep(2)
         touch(Template(r"tpl1754468751102.png", record_pos=(0.453, -0.091), resolution=(1600, 900)))
@@ -369,11 +375,17 @@ def main_process():
         else:
             raise Exception("自动打架引导丢失")
         if wait(Template(r"tpl1756710775458.png", record_pos=(-0.002, 0.182), resolution=(1600, 900)), timeout=60):
+            if exists(Template(r"tpl1754468841878.png", record_pos=(0.005, -0.092), resolution=(1600, 90))):
+                touch(Template(r"tpl1754468841878.png", record_pos=(0.005, -0.092), resolution=(1600, 90)))
+                touch((808,153))
+            else:
+                pass
             touch(Template(r"tpl1756711376850.png", record_pos=(-0.283, 0.221), resolution=(1600, 900)))
             sleep(4)
-
         else:
-            raise Exception("前往下一关引导丢失")
+            raise Exception("召唤弹窗弹出两次")
+        if not exists(Template(r"tpl1756711842901.png", record_pos=(0.399, 0.244), resolution=(1600, 900))):
+            raise Exception("召唤弹窗弹出两次")
         touch(Template(r"tpl1756711842901.png", record_pos=(0.399, 0.244), resolution=(1600, 900)))
         sleep(1)
 
@@ -502,7 +514,7 @@ def main_process():
         sleep(1)
         touch(Template(r"tpl1756712651425.png", record_pos=(0.404, 0.249), resolution=(1600, 900)))
         sleep(1)
-        if wait(Template(r"tpl1756712702783.png", record_pos=(0.029, -0.034), resolution=(1600, 900)), timeout=50):
+        if wait(Template(r"tpl1756712702783.png", record_pos=(0.029, -0.034), resolution=(1600, 900)), timeout=150):
             touch(Template(r"tpl1756712724448.png", record_pos=(0.003, -0.087), resolution=(1600, 900)))
             sleep(1)
 
@@ -552,7 +564,7 @@ def main_process():
 
         else:
             raise Exception("引导丢失")
-        if wait(Template(r"tpl1756712943120.png", record_pos=(0.266, -0.195), resolution=(1600, 900)), timeout=160):
+        if wait(Template(r"tpl1756712943120.png", threshold=0.9, record_pos=(0.266, -0.195), resolution=(1600, 900)), timeout=160):
             sleep(4)
             touch(Template(r"tpl1756712949044.png", record_pos=(-0.397, 0.229), resolution=(1600, 900)))
         else:
@@ -609,8 +621,17 @@ if __name__ == '__main__':
         phone = f"{brand}-{model} "
         file = script_name
         result = "SUCCESS"
+
+        # 指定目录路径
+        directory = Path(r"H:\Millennium Journey_Automation\ch_new_hand.air\log")
+        # 遍历目录中所有 .png 文件（不包括子目录）
+        for png_file in directory.glob("*.jpg"):
+            if png_file.is_file():  # 确保是文件
+                png_file.unlink()  # 删除文件
+                print(f"已删除: {png_file}")
         try:
             Recorder(dev).start_recording(max_time=6000)
+            open_app()
             main_process()
         except Exception as e:
             print(f"脚本执行异常: {e}")
@@ -620,7 +641,7 @@ if __name__ == '__main__':
         finally:
             Recorder(dev).stop_recording(output="test.mp4")
             LogToHtml(__file__,
-                      export_dir=r"C:\Users\admin\Desktop\Millennium Journey_Automation\ch_new_hand.air",
+                      export_dir=r"H:\Millennium Journey_Automation\ch_new_hand.air",
                       lang="zh",
                       ).report(output_file="test.html")
             with open(html_file, 'r', encoding='utf-8') as f:
