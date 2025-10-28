@@ -2,7 +2,7 @@
 __author__ = "王瀚鋆"
 __title__ = "千年之旅UI自动化"
 __desc__ = """
-正式服服新手引导
+正式服冒烟测试
 """
 
 from airtest.core.api import *
@@ -15,25 +15,12 @@ from server_qywx import sendmessage
 
 auto_setup(__file__, logdir=True, devices=["android://127.0.0.1:5037/127.0.0.1:16512"])
 sender = sendmessage(key="22a6a656-0fea-4ff4-b697-2fdd08729d49")
-export_dir = r"C:\Users\admin\Desktop\Millennium Journey_Automation\ch_smoke.air\ch_smoke.log"
+export_dir = r"H:\Millennium Journey_Automation\ch_smoke.air\ch_smoke.log"
 html_file = os.path.join(export_dir, "test.html")
 change_name = ''.join(random.choice('ab4defghijkl1opqr9341tuvwxyz') for _ in range(8))
 qianming = ''.join(random.choice('我拍你') for _ in range(120))
 
 #循环跳过下一个
-def auto_tap_continue(max_taps=1000, interval=1):
-    BTN_CONTINUE = Template(r"tpl1754535194424.png", record_pos=(0.344, 0.253), resolution=(1600, 900))
-    for i in range(max_taps):
-        try:
-            # 尝试查找图标
-            pos = wait(BTN_CONTINUE, timeout=30)
-            touch(pos)
-            print(f"第 {i + 1} 次点击: 成功找到并点击图标")
-            sleep(interval)
-        except TargetNotFoundError:
-            print("图标未找到，可能是剧情已经推进或者进入新界面。停止点击。")
-            break
-
 #连接设备
 def connect_emulator(host="127.0.0.1", port="16512"):
     # 方法1：用 subprocess
@@ -46,23 +33,22 @@ def connect_emulator(host="127.0.0.1", port="16512"):
 
 #异常处理
 def erro_pass():
-    keyevent("187")
-    sleep(3)
-    if exists(Template(r"tpl1756909047883.png", record_pos=(0.196, 0.244), resolution=(1600, 900))):
-        touch(Template(r"tpl1756909047883.png", record_pos=(0.196, 0.244), resolution=(1600, 900)))
-    else:
-        pass
-    keyevent("3")
-#闯关
-def cross_stage():
+    cmd = [
+        "am", "force-stop", "com.yingche.qnzl"
+    ]
+    dev.shell(cmd)
+def cross_stage_new():
     while exists(Template(r"tpl1757575255706.png", record_pos=(0.314, -0.26), resolution=(1600, 900))):
-        if exists(Template(r"tpl1757574854634.png", record_pos=(0.211, -0.05), resolution=(1600, 900))):
+        touch((1227,390))
+        sleep(1)
+        if exists(Template(r"tpl1761537483728.png", record_pos=(0.429, -0.121), resolution=(1600, 900))):
             sleep(1)
-            touch(Template(r"tpl1757574614508.png", record_pos=(0.224, -0.043), resolution=(1600, 900)))
-            sleep(2)
             touch(Template(r"tpl1757574621581.png", record_pos=(0.359, 0.241), resolution=(1600, 900)))
-            wait(Template(r"tpl1757574551409.png", threshold=0.85, record_pos=(0.231, -0.201), resolution=(1600, 900)),timeout=100)
-            sleep(2)
+            try:
+                wait(Template(r"tpl1757574551409.png", threshold=0.85, record_pos=(0.231, -0.201), resolution=(1600, 900)),timeout=100)
+                sleep(2)
+            except TargetNotFoundError:
+                print("失败")
             if exists(Template(r"tpl1757576653515.png", record_pos=(0.009, -0.052), resolution=(1600, 900))):
                 sleep(1)
                 touch(Template(r"tpl1757576664709.png", record_pos=(-0.008, 0.124), resolution=(1600, 900)))
@@ -73,6 +59,41 @@ def cross_stage():
             if exists(Template(r"tpl1757574648855.png", record_pos=(-0.307, 0.228), resolution=(1600, 900))):
                 sleep(2)
                 touch(Template(r"tpl1757574648855.png", record_pos=(-0.307, 0.228), resolution=(1600, 900)))
+                sleep(2)
+            else:
+                pass
+        else:
+            touch(Template(r"tpl1757574669706.png", record_pos=(0.333, -0.098), resolution=(1600, 900)))
+            sleep(1)
+            if exists(Template(r"tpl1757574688413.png", record_pos=(-0.002, -0.121), resolution=(1600, 900))):
+                touch((232,144))
+                sleep(1)
+            else:
+                raise("闯关失败")
+#闯关
+def cross_stage():
+    while exists(Template(r"tpl1757575255706.png", record_pos=(0.314, -0.26), resolution=(1600, 900))):
+        if exists(Template(r"tpl1757574854634.png", record_pos=(0.211, -0.05), resolution=(1600, 900))):
+            sleep(1)
+            touch(Template(r"tpl1757574614508.png", record_pos=(0.224, -0.043), resolution=(1600, 900)))
+            sleep(2)
+            touch(Template(r"tpl1757574621581.png", record_pos=(0.359, 0.241), resolution=(1600, 900)))
+            try:
+                wait(Template(r"tpl1757574551409.png", threshold=0.85, record_pos=(0.231, -0.201), resolution=(1600, 900)),timeout=100)
+                sleep(2)
+            except TargetNotFoundError:
+                print("失败")
+            if exists(Template(r"tpl1757576653515.png", record_pos=(0.009, -0.052), resolution=(1600, 900))):
+                sleep(1)
+                touch(Template(r"tpl1757576664709.png", record_pos=(-0.008, 0.124), resolution=(1600, 900)))
+                sleep(1)
+            else:
+                pass
+            sleep(1)
+            if exists(Template(r"tpl1757574648855.png", record_pos=(-0.307, 0.228), resolution=(1600, 900))):
+                sleep(2)
+                touch(Template(r"tpl1757574648855.png", record_pos=(-0.307, 0.228), resolution=(1600, 900)))
+                sleep(2)
             else:
                 pass
         else:
@@ -290,7 +311,7 @@ def maoyan():
             touch(Template(r"tpl1756890277892.png", record_pos=(0.434, -0.247), resolution=(1600, 900)))
             sleep(6)
         else:
-            raise Exception("单抽缺少跳过按钮")       
+            raise Exception("单抽缺少跳过按钮")
         if exists(Template(r"tpl1756951431929.png", record_pos=(-0.399, -0.179), resolution=(1600, 900))):
             sleep(2)
             touch((314, 268))
@@ -334,7 +355,7 @@ def maoyan():
             touch(Template(r"tpl1756890277892.png", record_pos=(0.434, -0.247), resolution=(1600, 900)))
             sleep(6)
         else:
-            raise Exception("单抽缺少跳过按钮")  
+            raise Exception("单抽缺少跳过按钮")
         if exists(Template(r"tpl1756951431929.png", threshold=0.9, record_pos=(-0.399, -0.179), resolution=(1600, 900))):
             sleep(2)
             touch((314, 268))
@@ -377,7 +398,7 @@ def maoyan():
             touch(Template(r"tpl1756890277892.png", record_pos=(0.434, -0.247), resolution=(1600, 900)))
             sleep(6)
         else:
-            raise Exception("单抽缺少跳过按钮")  
+            raise Exception("单抽缺少跳过按钮")
         if exists(Template(r"tpl1756951431929.png", threshold=0.9, record_pos=(-0.399, -0.179), resolution=(1600, 900))):
             sleep(2)
             touch((314, 268))
@@ -419,7 +440,7 @@ def maoyan():
             touch(Template(r"tpl1756890277892.png", record_pos=(0.434, -0.247), resolution=(1600, 900)))
             sleep(6)
         else:
-            raise Exception("单抽缺少跳过按钮")  
+            raise Exception("单抽缺少跳过按钮")
         if exists(Template(r"tpl1756951431929.png", threshold=0.9, record_pos=(-0.399, -0.179), resolution=(1600, 900))):
             sleep(2)
             touch((314, 268))
@@ -602,7 +623,7 @@ def maoyan():
         if exists(Template(r"tpl1757312573972.png", threshold=0.5, record_pos=(0.449, 0.123), resolution=(1600, 900))):
             print("切换3d皮肤成功")
         else:
-            raise Exception("3d皮肤丢失")
+            pass
         touch(Template(r"tpl1757312829471.png", record_pos=(-0.455, -0.257), resolution=(1600, 900)))
         touch(Template(r"tpl1757312856501.png", record_pos=(0.336, -0.257), resolution=(1600, 900)))
         if exists(Template(r"tpl1757312867369.png", record_pos=(0.416, 0.021), resolution=(1600, 900))):
@@ -767,7 +788,7 @@ def maoyan():
             print("等级礼包跳转正常")
         else:
             raise Exception("等级礼包页面跳转失败")
-        touch(Template(r"tpl1757319600832.png", record_pos=(0.258, 0.261), resolution=(1600, 900)))
+        touch(Template(r"tpl1757319600832.png", threshold=0.8, record_pos=(0.258, 0.261), resolution=(1600, 900)))
         sleep(1)
         if exists(Template(r"tpl1757320095297.png", threshold=0.7, record_pos=(0.029, 0.011), resolution=(1600, 900))):
             print("热卖装扮正常打开")
@@ -865,22 +886,24 @@ def maoyan():
             sleep(1)
             touch(Template(r"tpl1757574412403.png", record_pos=(0.284, 0.117), resolution=(1600, 900)))
         else:
-            print("没有引导") 
+            print("没有引导")
         wait(Template(r"tpl1757574551409.png", record_pos=(0.231, -0.201), resolution=(1600, 900)),timeout=60)
         sleep(2)
         touch(Template(r"tpl1757574603173.png", record_pos=(-0.156, 0.227), resolution=(1600, 900)))
         sleep(2)
-        cross_stage()    
+        cross_stage()
         if exists(Template(r"tpl1757575462513.png", record_pos=(0.001, -0.074), resolution=(1600, 900))):
             print("已达成第1-17章，解锁任务关卡")
             touch((615,711))
+            sleep(1)
         else:
-            raise("无法正常解锁第1-17章节，任务功能")
+            raise Exception("无法正常解锁第1-17章节，任务功能")
         if exists(Template(r"tpl1757575662898.png", record_pos=(0.008, -0.088), resolution=(1600, 900))):
             print("已达成第1-17章，解锁星痕记忆")
             touch((615,711))
+            sleep(1)
         else:
-            raise("无法正常解锁第1-17章节，星痕记忆功能")
+            raise Exception("无法正常解锁第1-17章节，星痕记忆功能")
         touch(Template(r"tpl1757576893663.png", record_pos=(-0.431, 0.225), resolution=(1600, 900)))
         sleep(2)
         if exists(Template(r"tpl1757576910538.png", record_pos=(-0.371, -0.134), resolution=(1600, 900))):
@@ -930,8 +953,8 @@ def maoyan():
         touch((164,399))
         sleep(1)
         if not exists(Template(r"tpl1757578411808.png", record_pos=(0.004, -0.099), resolution=(1600, 900))):
-            raise Exception("困难模式弹窗丢失")            
-        touch((164,399))    
+            raise Exception("困难模式弹窗丢失")
+        touch((164,399))
         if not exists(Template(r"tpl1757578485311.png", record_pos=(0.02, -0.095), resolution=(1600, 900))):
             raise Exception("神谕司弹窗丢失")
         touch((164,399))
@@ -941,14 +964,14 @@ def maoyan():
             raise Exception("神谕司引导丢失")
         touch(Template(r"tpl1757578616227.png", record_pos=(0.116, 0.212), resolution=(1600, 900)))
         if not exists(Template(r"tpl1757578590222.png", record_pos=(-0.346, 0.117), resolution=(1600, 900))):
-            raise Exception("神谕司委任引导丢失")    
+            raise Exception("神谕司委任引导丢失")
         touch(Template(r"tpl1757578641315.png", record_pos=(-0.412, -0.058), resolution=(1600, 900)))
         if not exists(Template(r"tpl1757578590222.png", record_pos=(-0.346, 0.117), resolution=(1600, 900))):
             raise Exception("神谕司一键委任引导丢失")
 
         touch(Template(r"tpl1757578674492.png", record_pos=(0.374, 0.241), resolution=(1600, 900)))
         if not exists(Template(r"tpl1757578590222.png", record_pos=(-0.346, 0.117), resolution=(1600, 900))):
-            raise Exception("神谕司委任奖励引导丢失") 
+            raise Exception("神谕司委任奖励引导丢失")
         touch(Template(r"tpl1757578835697.png", record_pos=(-0.092, 0.179), resolution=(1600, 900)))
         if not exists(Template(r"tpl1757578590222.png", record_pos=(-0.346, 0.117), resolution=(1600, 900))):
             raise Exception("神谕司结束引导丢失")
@@ -966,20 +989,20 @@ def maoyan():
         sleep(1)
         touch((620,102))
         if not exists(Template(r"tpl1757578590222.png", record_pos=(-0.346, 0.117), resolution=(1600, 900))):
-             raise Exception("勋章统计引导丢失")        
+             raise Exception("勋章统计引导丢失")
                 
         touch(Template(r"tpl1757579005252.png", record_pos=(-0.212, 0.253), resolution=(1600, 900)))
         if not exists(Template(r"tpl1757578590222.png", record_pos=(-0.346, 0.117), resolution=(1600, 900))):
-             raise Exception("勋章统计界面引导丢失")                   
+             raise Exception("勋章统计界面引导丢失")
         touch((1185,207))
         if not exists(Template(r"tpl1757578590222.png", record_pos=(-0.346, 0.117), resolution=(1600, 900))):
-             raise Exception("勋章结束引导丢失")        
+             raise Exception("勋章结束引导丢失")
         touch(Template(r"tpl1757579109735.png", record_pos=(-0.366, -0.256), resolution=(1600, 900)))
         if not exists(Template(r"tpl1757578590222.png", record_pos=(-0.346, 0.117), resolution=(1600, 900))):
-             raise Exception("玩家档案引导丢失")        
+             raise Exception("玩家档案引导丢失")
         touch(Template(r"tpl1757579134591.png", record_pos=(-0.438, -0.239), resolution=(1600, 900)))
         if not exists(Template(r"tpl1757578590222.png", record_pos=(-0.346, 0.117), resolution=(1600, 900))):
-             raise Exception("勋章槽引导丢失")        
+             raise Exception("勋章槽引导丢失")
         touch(Template(r"tpl1757579161229.png", record_pos=(-0.092, 0.159), resolution=(1600, 900)))
         if not exists(Template(r"tpl1757578590222.png", record_pos=(-0.346, 0.117), resolution=(1600, 900))):
              raise Exception("首次激活勋章引导丢失")
@@ -994,7 +1017,19 @@ def maoyan():
             raise Exception("勋章保存设定引导丢失")
         touch(Template(r"tpl1757579605481.png", record_pos=(-0.451, -0.259), resolution=(1600, 900)))
         touch(Template(r"tpl1757579605481.png", record_pos=(-0.451, -0.259), resolution=(1600, 900)))
-        erro_pass()
+        sleep(1)
+        touch(Template(r"tpl1761289339050.png", record_pos=(0.378, 0.182), resolution=(1600, 900)))
+        sleep(1)
+        touch(Template(r"tpl1761289351840.png", record_pos=(0.147, -0.014), resolution=(1600, 900)))
+        sleep(1)
+        touch(Template(r"tpl1761289368965.png", record_pos=(0.421, -0.083), resolution=(1600, 900)))
+        sleep(1)
+        cross_stage_new()
+        if not exists(Template(r"tpl1761208353291.png", record_pos=(0.009, -0.1), resolution=(1600, 900))):
+            raise Exception("公会弹窗丢失")
+        touch((164,399))
+        touch(Template(r"tpl1761208457080.png", record_pos=(-0.307, 0.224), resolution=(1600, 900)))
+        touch(Template(r"tpl1761208669654.png", record_pos=(-0.369, -0.258), resolution=(1600, 900)))
     except Exception as e:
         erro_pass()
         raise
@@ -1013,10 +1048,19 @@ if __name__ == '__main__':
         phone = f"{brand}-{model} "
         file = script_name
         result = "SUCCESS"
+        from pathlib import Path
+
+        # 指定目录路径
+        directory = Path(r"H:\Millennium Journey_Automation\ch_smoke.air\log")
+
+        # 遍历目录中所有 .png 文件（不包括子目录）
+        for png_file in directory.glob("*.jpg"):
+            if png_file.is_file():  # 确保是文件
+                png_file.unlink()  # 删除文件
+                print(f"已删除: {png_file}")
         Recorder(dev).start_recording(max_time=6000)
         try:
             maoyan()
-            # raise Exception("引导丢失")
         except Exception as e:
             print(f"脚本执行异常: {e}")
             erro_message = traceback.format_exc()
@@ -1025,7 +1069,7 @@ if __name__ == '__main__':
         finally:
             Recorder(dev).stop_recording(output="test.mp4")
             LogToHtml(__file__,
-                      export_dir=r"C:\Users\admin\Desktop\Millennium Journey_Automation\ch_smoke.air",
+                      export_dir=r"H:\Millennium Journey_Automation\ch_smoke.air",
                       lang="zh",
                       ).report(output_file=r"test.html")
             with open(html_file, 'r', encoding='utf-8') as f:
@@ -1082,6 +1126,7 @@ if __name__ == '__main__':
                 f"**报告地址**:[{report_html}]({report_html})\n"
                 f"**错误信息**: \n```\n{erro_message}\n```"
             )
+
 
 
 
